@@ -167,6 +167,115 @@ func Reduction(name string, ranks *mat.Dense) {
 	}
 }
 
+// NeuralReduction reduces the matrix using a neural network
+func NeuralReduction(name string, ranks *mat.CDense) {
+	random128 := func(a, b float64) complex128 {
+		return complex((b-a)*rand.Float64()+a, (b-a)*rand.Float64()+a)
+	}
+
+	set := tc128.NewSet()
+	set.Add("A", Size, Size)
+	set.Add("N", 1, 1)
+
+	optimize := tc128.NewSet()
+	optimize.Add("X", Size, 2)
+
+	w := set.Weights[0]
+	for i := 0; i < Size; i++ {
+		for j := 0; j < Size; j++ {
+			w.X = append(w.X, ranks.At(i, j))
+		}
+	}
+
+	w = set.Weights[1]
+	for i := 0; i < cap(w.X); i++ {
+		w.X = append(w.X, -1)
+	}
+
+	w = optimize.Weights[0]
+	for i := 0; i < cap(w.X); i++ {
+		w.X = append(w.X, random128(-1, 1))
+	}
+
+	cost := tc128.Exp(tc128.Hadamard(set.Get("N"), tc128.Sum(tc128.Variance(tc128.Mul(set.Get("A"), optimize.Get("X"))))))
+
+	eta, iterations := complex128(.3), 256
+	points := make(plotter.XYs, 0, iterations)
+	i := 0
+	for i < iterations {
+		optimize.Zero()
+
+		total := tc128.Gradient(cost).X[0]
+		sum := 0.0
+		for _, p := range optimize.Weights {
+			for _, d := range p.D {
+				sum += cmplx.Abs(d) * cmplx.Abs(d)
+			}
+		}
+		norm := float64(math.Sqrt(float64(sum)))
+		scaling := float64(1)
+		if norm > 1 {
+			scaling = 1 / norm
+		}
+
+		for _, p := range optimize.Weights {
+			for l, d := range p.D {
+				p.X[l] -= eta * d * complex(scaling, 0)
+			}
+		}
+
+		points = append(points, plotter.XY{X: float64(i), Y: float64(cmplx.Abs(total))})
+		fmt.Println(i, cmplx.Abs(total))
+		i++
+	}
+
+	p := plot.New()
+
+	p.Title.Text = "epochs vs cost"
+	p.X.Label.Text = "epochs"
+	p.Y.Label.Text = "cost"
+
+	scatter, err := plotter.NewScatter(points)
+	if err != nil {
+		panic(err)
+	}
+	scatter.GlyphStyle.Radius = vg.Length(1)
+	scatter.GlyphStyle.Shape = draw.CircleGlyph{}
+	p.Add(scatter)
+
+	err = p.Save(8*vg.Inch, 8*vg.Inch, "cost.png")
+	if err != nil {
+		panic(err)
+	}
+
+	points = make(plotter.XYs, 0, 8)
+	reduced := optimize.Weights[0]
+	for i := 0; i < Size; i++ {
+		a, b := cmplx.Abs(reduced.X[i]), cmplx.Abs(reduced.X[i+Size])
+		fmt.Println(a, b)
+		points = append(points, plotter.XY{X: a, Y: b})
+	}
+
+	p = plot.New()
+
+	p.Title.Text = "x vs y"
+	p.X.Label.Text = "x"
+	p.Y.Label.Text = "y"
+
+	scatter, err = plotter.NewScatter(points)
+	if err != nil {
+		panic(err)
+	}
+	scatter.GlyphStyle.Radius = vg.Length(3)
+	scatter.GlyphStyle.Shape = draw.CircleGlyph{}
+	p.Add(scatter)
+
+	err = p.Save(8*vg.Inch, 8*vg.Inch, fmt.Sprintf("%s.png", name))
+	if err != nil {
+		panic(err)
+	}
+}
+
 func main() {
 	flag.Parse()
 	rand.Seed(1)
@@ -219,4 +328,5 @@ func main() {
 		}
 	}
 	Reduction("results", ranks)
+	//NeuralReduction("neural", &vectors)
 }
