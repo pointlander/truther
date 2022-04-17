@@ -111,11 +111,27 @@
        inkscape:export-xdpi="216.36615"
        inkscape:export-ydpi="216.36615" />
     <path
-       style="fill:#0000ff;stroke:#0000ff;stroke-width:0.264798px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 102.05761,54.262859 -0.23009,22.924355"
+       style="fill:#0000ff;stroke:#0000ff;stroke-width:0.268257px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 102.05752,54.262709 -0.22991,23.544636"
        id="path864"
        inkscape:export-filename="/home/andrew/projects/truther/graph.png"
        inkscape:export-xdpi="216.36615"
        inkscape:export-ydpi="216.36615" />
+    <path
+       style="fill:none;stroke:#0000ff;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 76.910912,47.562165 99.35642,22.73251"
+       id="path2928" />
+    <path
+       style="fill:none;stroke:#0000ff;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 105.45287,22.340627 21.66632,26.93185"
+       id="path3029" />
+    <path
+       style="fill:none;stroke:#0000ff;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 127.97627,54.514256 104.71662,78.664925"
+       id="path3229" />
+    <path
+       style="fill:none;stroke:#0000fe;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 99.224266,78.595795 77.79393,52.844939"
+       id="path3627" />
   </g>
 </svg>
