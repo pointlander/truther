@@ -5,6 +5,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"math"
 	"math/cmplx"
@@ -24,46 +25,13 @@ const (
 	Size = 5
 )
 
-func main() {
-	rand.Seed(1)
+var (
+	// FlagNeural neural mode
+	FlagNeural = flag.Bool("neural", false, "neural mode")
+)
 
-	data := []float64{
-		0, 1, 0, 1, 1,
-		1, 0, 1, 0, 1,
-		0, 1, 0, 1, 1,
-		1, 0, 1, 0, 1,
-		1, 1, 1, 1, 1,
-	}
-	adjacency := mat.NewDense(Size, Size, data)
-	var eig mat.Eigen
-	ok := eig.Factorize(adjacency, mat.EigenRight)
-	if !ok {
-		panic("Eigendecomposition failed")
-	}
-
-	values := eig.Values(nil)
-	for i, value := range values {
-		fmt.Println(i, value, cmplx.Abs(value), cmplx.Phase(value))
-	}
-	fmt.Printf("\n")
-
-	vectors := mat.CDense{}
-	eig.VectorsTo(&vectors)
-	for i := 0; i < Size; i++ {
-		for j := 0; j < Size; j++ {
-			fmt.Printf("%f ", vectors.At(i, j))
-		}
-		fmt.Printf("\n")
-	}
-	fmt.Printf("\n")
-
-	for i := 0; i < Size; i++ {
-		for j := 0; j < Size; j++ {
-			fmt.Printf("(%f, %f) ", cmplx.Abs(vectors.At(i, j)), cmplx.Phase(vectors.At(i, j)))
-		}
-		fmt.Printf("\n")
-	}
-
+// Neural mode
+func Neural(vectors *mat.CDense, values []complex128) {
 	random128 := func(a, b float64) complex128 {
 		return complex((b-a)*rand.Float64()+a, (b-a)*rand.Float64()+a)
 	}
@@ -145,5 +113,51 @@ func main() {
 			fmt.Printf("%f ", cmplx.Abs(value))
 		}
 		fmt.Printf("\n")
+	}
+}
+
+func main() {
+	flag.Parse()
+	rand.Seed(1)
+
+	data := []float64{
+		0, 1, 0, 1, 1,
+		1, 0, 1, 0, 1,
+		0, 1, 0, 1, 1,
+		1, 0, 1, 0, 1,
+		1, 1, 1, 1, 1,
+	}
+	adjacency := mat.NewDense(Size, Size, data)
+	var eig mat.Eigen
+	ok := eig.Factorize(adjacency, mat.EigenRight)
+	if !ok {
+		panic("Eigendecomposition failed")
+	}
+
+	values := eig.Values(nil)
+	for i, value := range values {
+		fmt.Println(i, value, cmplx.Abs(value), cmplx.Phase(value))
+	}
+	fmt.Printf("\n")
+
+	vectors := mat.CDense{}
+	eig.VectorsTo(&vectors)
+	for i := 0; i < Size; i++ {
+		for j := 0; j < Size; j++ {
+			fmt.Printf("%f ", vectors.At(i, j))
+		}
+		fmt.Printf("\n")
+	}
+	fmt.Printf("\n")
+
+	for i := 0; i < Size; i++ {
+		for j := 0; j < Size; j++ {
+			fmt.Printf("(%f, %f) ", cmplx.Abs(vectors.At(i, j)), cmplx.Phase(vectors.At(i, j)))
+		}
+		fmt.Printf("\n")
+	}
+
+	if *FlagNeural {
+		Neural(&vectors, values)
 	}
 }
